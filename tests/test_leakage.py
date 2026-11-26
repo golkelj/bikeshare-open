@@ -57,6 +57,28 @@ def test_rolling_mean_excludes_today(feats):
         assert feats.set_index("dteday").cnt_roll_7[date] == pytest.approx(expected)
 
 
+def test_rolling_std_is_hand_computed_from_prior_week(feats):
+    """cnt_roll_7_std on 2011-06-15 is the sample std (ddof=1) of cnt on
+    2011-06-08 .. 2011-06-14, copied by hand from data/raw/bike_daily.csv.
+    Today's count (5180) is not in the window; if .shift(1) is dropped the
+    value becomes stdev(3915 .. 5180) = 432.99 and this fails."""
+    prior_week = [4401, 3915, 4586, 4966, 4460, 5020, 4891]
+    mean = sum(prior_week) / 7  # 4605.571...
+    expected = (sum((x - mean) ** 2 for x in prior_week) / 6) ** 0.5  # 392.31
+    got = feats.set_index("dteday").cnt_roll_7_std[pd.Timestamp("2011-06-15")]
+    assert got == pytest.approx(expected, abs=1e-6)
+    assert got == pytest.approx(392.31, abs=0.01)
+
+
+def test_rolling_std_respects_the_calendar_gap(feats):
+    """2011-03-10 is absent. The window for 2011-03-17 covers it, so that row
+    must be dropped rather than silently computed over a 2011-03-09 count;
+    2011-03-18 is the first day after the gap with a full prior week."""
+    dates = set(feats.dteday)
+    assert pd.Timestamp("2011-03-17") not in dates
+    assert pd.Timestamp("2011-03-18") in dates
+
+
 def test_no_missing_values(feats):
     assert feats[feature_columns(feats)].isna().sum().sum() == 0
 
