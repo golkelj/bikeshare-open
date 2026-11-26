@@ -101,3 +101,16 @@ def test_bad_weather_days_survive(feats):
     raising) is visible too: the raw file has 20 BAD days; the 7-day warm-up
     and the 2011-03-10 gap remove none of them."""
     assert (feats.weather == "BAD").sum() == 20
+
+
+def test_lag_7_is_seven_calendar_days(feats):
+    """cnt_lag_7 on 2011-06-15 is cnt on 2011-06-08 (4401), copied by hand
+    from data/raw/bike_daily.csv. shift(6) would give 2011-06-09 (3915);
+    no other test checked this column's alignment."""
+    by_date = feats.set_index("dteday")
+    assert by_date.cnt_lag_7[pd.Timestamp("2011-06-15")] == 4401
+    # And everywhere: lag_7 on d equals cnt on d-7 whenever both survive.
+    shifted = by_date[TARGET].rename(lambda d: d + pd.Timedelta(days=7))
+    both = by_date.cnt_lag_7.index.intersection(shifted.index)
+    assert len(both) > 600
+    assert (by_date.cnt_lag_7[both] == shifted[both]).all()
