@@ -13,7 +13,7 @@ from src.config import (
     TARGET,
 )
 from src.features import build_features, feature_columns, reindex_to_calendar
-from src.ingest import load_raw
+from src.ingest import load_raw, verify_raw
 from src.train import MODELS, temporal_split
 
 
@@ -70,6 +70,25 @@ def test_every_raw_column_is_classified(feats):
     known = FORBIDDEN | set(feature_columns(feats)) | {DATE_COL} | ENCODED_COLS | REDUNDANT_COLS
     unclassified = sorted(set(header) - known)
     assert not unclassified, f"raw columns not classified in src/config.py: {unclassified}"
+
+
+def test_raw_file_is_unmodified():
+    """The checked-in raw file must hash to RAW_SHA256. Bash can write to
+    data/raw/ even though Write/Edit are denied; this is the check that
+    notices."""
+    verify_raw()
+
+
+def test_hash_check_rejects_a_tampered_copy(tmp_path):
+    """Change one count in a copy (Hurricane Sandy, cnt 22 -> 5022). The
+    shape, columns and row count are all unchanged, so ingest's own checks
+    accept it; the hash check must refuse it. Guards against verify_raw
+    being edited into a no-op."""
+    tampered = tmp_path / "bike_daily.csv"
+    tampered.write_bytes(RAW.read_bytes().replace(b',22,"Y"', b',5022,"Y"', 1))
+    assert tampered.read_bytes() != RAW.read_bytes()
+    with pytest.raises(ValueError, match="raw data was modified"):
+        verify_raw(tampered)
 
 
 def test_persistence_baseline_is_reported():

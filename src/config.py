@@ -19,6 +19,10 @@ DATA_URL = (
     "https://raw.githubusercontent.com/christophM/"
     "interpretable-ml-book/master/data/bike.csv"
 )
+# sha256 of the checked-in raw file. The permission rules deny Write/Edit on
+# data/raw/, but a Bash `cp` or `sed -i` goes straight past them; this hash,
+# checked by `make data` and by tests/test_contract.py, is what notices.
+RAW_SHA256 = "a6bed1577f6e4de56dcfae6d8315985073cc0ad3446c8c99ed60c86a0b5ad9dc"
 
 TARGET = "cnt"
 
