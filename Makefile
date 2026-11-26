@@ -1,19 +1,23 @@
 .PHONY: all data features train test clean model check-model
 
 # --- The pipeline ----------------------------------------------------------
+# Use the pinned venv when it exists: a bare `python` can resolve to conda,
+# whose scikit-learn moves the hgb row. Override with `make PYTHON=...`.
+PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
+
 all: data features train
 
 data:
-	python -m src.ingest
+	$(PYTHON) -m src.ingest
 
 features:
-	python -m src.features
+	$(PYTHON) -m src.features
 
 train:
-	python -m src.train
+	$(PYTHON) -m src.train
 
 test:
-	python -m pytest tests/ -q
+	$(PYTHON) -m pytest tests/ -q
 
 clean:
 	rm -f data/processed/*.parquet reports/metrics.json reports/*.png

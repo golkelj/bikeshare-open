@@ -18,3 +18,4 @@ Agents append here via the `/new-feature` skill; you append here by hand.
 - 2026-11-25: CLAUDE.md: added rules for Bash writes to data/raw (hash check), classifying new raw columns, which command may write metrics.json, the conda-vs-venv PATH trap that drifts the hgb row, and leaving SEEDED FAULT commits alone. Each is a mistake made or nearly made in this session. 51 lines.
 - 2026-11-25: Wrote `.claude/skills/seed-fault`, the loop run by hand for faults 1-3 (green, Edit-break, record hook + make test, commit, test-first fix, log).
 - 2026-11-25: Fault 5 via `/seed-fault` (`cnt_lag_7` as `shift(6)`) left the suite green; added `test_lag_7_is_seven_calendar_days`.
+- 2026-11-25: Acted on audit.jsonl finding 2 (Makefile bare `python`): Makefile now uses `.venv/bin/python` when present (`PYTHON ?=`). Verified `metrics.json` is unchanged with conda first on PATH. Finding 1 (README '14 tests') fixed; findings 3-4 are no-change notes.
