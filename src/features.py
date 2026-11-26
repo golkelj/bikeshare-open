@@ -72,7 +72,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     # without it, cnt_roll_7 would contain today's count. -----------------
     # If you add a longer lag, raise LAG_WARMUP in src/config.py.
     out["cnt_lag_1"] = out[TARGET].shift(1)
-    out["cnt_lag_7"] = out[TARGET].shift(LAG_WARMUP)
+    out["cnt_lag_7"] = out[TARGET].shift(6)
     out["cnt_roll_7"] = out[TARGET].shift(1).rolling(LAG_WARMUP).mean()
     # Volatility of the past week (sample std, ddof=1). Same window as
     # cnt_roll_7, so LAG_WARMUP is unchanged.
