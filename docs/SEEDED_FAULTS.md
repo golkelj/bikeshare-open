@@ -239,3 +239,45 @@ no-op. I chose this over a PreToolUse hook on Bash because the hash catches
 any writer (shell, editor, `git checkout` of another branch, a second agent),
 while a hook only sees Claude Code's Bash tool and has to recognise every
 spelling of a write (`cp`, `mv`, `>`, `sed -i`, `tee`, `python -c ...`).
+
+## Fault 5 (extra, run through `/seed-fault`): `cnt_lag_7` built with `shift(6)`
+
+This is the first fault run through the `/seed-fault` skill, invoked as
+`/seed-fault cnt_lag_7 built with shift(6) instead of shift(7)`. The skill's
+live header listed faults 1-3 from `git log`.
+
+Change (commit `00ef2a4`, fixed in `b15e11a`):
+
+```diff
+-    out["cnt_lag_7"] = out[TARGET].shift(LAG_WARMUP)
++    out["cnt_lag_7"] = out[TARGET].shift(6)
+```
+
+Hook: **exit 0, no stderr.** `make test`: **green under the fault.**
+
+```
+21 passed in 0.91s
+```
+
+No test checked `cnt_lag_7`'s alignment. `test_lags_are_true_calendar_lags`
+covers `cnt_lag_1` only. Added `test_lag_7_is_seven_calendar_days` (the
+2011-06-15 value 4401 is copied by hand, plus a full-column check against
+`cnt` shifted 7 calendar days). Against the still-broken code, `make test`:
+
+```
+E       assert np.float64(3915.0) == 4401
+FAILED tests/test_leakage.py::test_lag_7_is_seven_calendar_days - assert np.f...
+1 failed, 21 passed in 0.80s
+```
+
+and the hook (exit 2):
+
+```
+Leakage tests failed after editing <repo>/src/features.py:
+E       assert np.float64(3915.0) == 4401
+FAILED tests/test_leakage.py::test_lag_7_is_seven_calendar_days - assert np.f...
+1 failed, 11 passed in 0.18s
+```
+
+Turns to fix: **3** (write the test, run it red, restore `shift(LAG_WARMUP)`).
+22 passed.

@@ -17,3 +17,4 @@ Agents append here via the `/new-feature` skill; you append here by hand.
 - 2026-11-25: Exercise 4 test split touched once (`--final`), after the choice above was committed. Test R^2: hgb ratio 0.6280 (MAE 832.8), hgb diff 0.6271, raw ridge 0.6356, raw hgb -0.6959. hgb now competes with ridge; it does not beat it. No further transform was tried after this look.
 - 2026-11-25: CLAUDE.md: added rules for Bash writes to data/raw (hash check), classifying new raw columns, which command may write metrics.json, the conda-vs-venv PATH trap that drifts the hgb row, and leaving SEEDED FAULT commits alone. Each is a mistake made or nearly made in this session. 51 lines.
 - 2026-11-25: Wrote `.claude/skills/seed-fault`, the loop run by hand for faults 1-3 (green, Edit-break, record hook + make test, commit, test-first fix, log).
+- 2026-11-25: Fault 5 via `/seed-fault` (`cnt_lag_7` as `shift(6)`) left the suite green; added `test_lag_7_is_seven_calendar_days`.
