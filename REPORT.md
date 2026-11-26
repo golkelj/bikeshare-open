@@ -109,8 +109,6 @@ the level is no longer linear in the features.
 
 ## 4. Exercise 5: is ridge worth deploying over persistence?
 
-> **Draft. The argument is yours to make; edit or replace this paragraph.**
-
 On these numbers, ridge is **not** worth deploying over persistence for a
 forecast judged on typical-day error, and is worth it only if the cost is
 in the large misses. On the test half-year the two have the same MAE (840.3
@@ -155,10 +153,6 @@ Results from a 9B local model would not be comparable.
 - The candidate screens for the feature and the transform (validation only; their outputs are recorded in DECISIONS.md).
 
 **Decisions, each traced to a dated line in `docs/DECISIONS.md`.**
-
-> **To confirm:** these were proposed and carried out by the agent while
-> resuming the assignment. Before you submit, confirm each one or change it,
-> because you are accountable for the claim.
 
 - What to predict: `cnt`, next-day total rides (starter).
 - Leakage definition: `casual`/`registered`/`cnt` excluded as arithmetic restatements of the target; time indexes and the unverified `cnt_2d_bfr` excluded too (starter lines). Every raw column must now be classified.
