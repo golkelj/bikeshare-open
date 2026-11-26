@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from src.config import FORBIDDEN, TARGET
-from src.features import build_features, feature_columns
+from src.features import build_features, encode_weather, feature_columns
 from src.ingest import load_raw
 
 
@@ -86,3 +86,18 @@ def test_no_missing_values(feats):
 def test_dates_are_sorted_and_unique(feats):
     assert feats.dteday.is_monotonic_increasing
     assert feats.dteday.is_unique
+
+
+def test_unknown_weather_label_raises():
+    """A label outside GOOD/MISTY/BAD must stop the pipeline. A silent .map()
+    turns it into NaN and dropna() deletes the day with no warning, which is
+    how the 20 BAD-weather days would vanish if the mirror renamed them."""
+    with pytest.raises(ValueError, match="STORMY"):
+        encode_weather(pd.Series(["GOOD", "STORMY", "BAD"]))
+
+
+def test_bad_weather_days_survive(feats):
+    """Pins the count, so a weather fault that drops rows (rather than
+    raising) is visible too: the raw file has 20 BAD days; the 7-day warm-up
+    and the 2011-03-10 gap remove none of them."""
+    assert (feats.weather == "BAD").sum() == 20
