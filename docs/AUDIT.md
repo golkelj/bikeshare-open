@@ -58,8 +58,6 @@ Only the absolute scratch-directory prefix is shortened to `<scratch>`.
 
 ## My verdict
 
-> **Draft. Your judgement, so check it and edit it.**
-
 I agree with the auditor's bottom line: nothing in this repo changes a
 number. I checked the central claim myself rather than taking it on trust.
 With the pinned interpreter, `src.ingest` -> `src.features` -> `src.train`
