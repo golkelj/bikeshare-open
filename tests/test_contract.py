@@ -3,7 +3,15 @@ import pandas as pd
 import pytest
 from sklearn.metrics import r2_score
 
-from src.config import LAG_WARMUP, TARGET
+from src.config import (
+    DATE_COL,
+    ENCODED_COLS,
+    FORBIDDEN,
+    LAG_WARMUP,
+    RAW,
+    REDUNDANT_COLS,
+    TARGET,
+)
 from src.features import build_features, feature_columns, reindex_to_calendar
 from src.ingest import load_raw
 from src.train import MODELS, temporal_split
@@ -50,6 +58,18 @@ def test_beats_the_mean_baseline(feats):
     ridge = MODELS["ridge"]
     ridge.fit(train[cols], train[TARGET])
     assert r2_score(test[TARGET], ridge.predict(test[cols])) > 0.4
+
+
+def test_every_raw_column_is_classified(feats):
+    """Each column of the raw CSV must be forbidden, a model feature, the date,
+    or explicitly listed as encoded or redundant in src/config.py. A column the
+    mirror adds (as it added days_since_2011 and cnt_2d_bfr) fails here until
+    someone decides what it is. The header is read from the file itself, not
+    from anything the pipeline derived from it."""
+    header = pd.read_csv(RAW, nrows=0).columns
+    known = FORBIDDEN | set(feature_columns(feats)) | {DATE_COL} | ENCODED_COLS | REDUNDANT_COLS
+    unclassified = sorted(set(header) - known)
+    assert not unclassified, f"raw columns not classified in src/config.py: {unclassified}"
 
 
 def test_persistence_baseline_is_reported():
